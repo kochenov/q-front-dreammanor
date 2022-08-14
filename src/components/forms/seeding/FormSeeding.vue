@@ -86,12 +86,14 @@
 
 <script setup>
 import { ref } from "vue";
-// Сорт овоща
+// TODO Сорт овоща получать данные из базы
 const stringOptions = [
   { id: 0, label: "Без учёта сорта" },
   { id: 1, label: "Сорт 1" },
-  { id: 2, label: "Сорт 1" },
-  { id: 3, label: "Сорт 1" },
+  { id: 2, label: "Сорт 2" },
+  { id: 3, label: "Сорт 3" },
+  { id: 4, label: "Сорт 4" },
+  { id: 4, label: "Сорт 5" },
 ]; // Список из сотов определённого овоща
 const currentSort = ref({ id: 0, label: "Без учёта сорта" }); // Выбранный сорт
 const sorts = ref(stringOptions); // Реакстивный список
@@ -105,8 +107,9 @@ const filterFn = (val, update) => {
     update(() => {
       console.log(12);
       const needle = val.toLowerCase();
+      console.log(needle);
       sorts.value = stringOptions.filter(
-        (v) => v.toLowerCase().indexOf(needle) > -1
+        (v) => v.label.toLowerCase().indexOf(needle) > -1
       );
     });
   }
