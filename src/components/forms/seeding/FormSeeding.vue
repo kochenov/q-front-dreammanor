@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit.prevent>
+  <q-form @submit.prevent="test">
     <div class="row q-col-gutter-md">
       <div class="col-xs-12 col-md-4">
         <q-select
@@ -17,6 +17,9 @@
           clear-icon
           behavior="dialog"
         >
+          <template v-slot:before>
+            <q-icon name="category" />
+          </template>
           <template v-slot:no-option>
             <q-item>
               <q-item-section class="text-grey"> Не найден </q-item-section>
@@ -46,6 +49,9 @@
               'Кустов должно быть больше чем рядов (или равно им)',
           ]"
         >
+          <template v-slot:before>
+            <q-icon name="pin" />
+          </template>
           <q-tooltip
             class="bg-grey-8"
             anchor="top left"
@@ -77,12 +83,78 @@
               'Рядов должно быть меньше чем кустов (или равно им)',
           ]"
         >
+          <template v-slot:before>
+            <q-icon name="pin" />
+          </template>
           <q-tooltip
             class="bg-grey-8"
             anchor="top left"
             self="bottom left"
             :offset="[0, 8]"
             >Введите планируемое количество рядов на грядке
+          </q-tooltip>
+        </q-input>
+      </div>
+
+      <div class="col-xs-12 col-md-6">
+        <q-input
+          outlined
+          v-model="distanceBetweenRows"
+          type="number"
+          autogrow
+          dense
+          lazy-rules
+          label="Расстояние между рядов, см"
+          suffix="см"
+          placeholder="60"
+          hint="Введите положительное число от 5 до 500"
+          :rules="[
+            (val) =>
+              (val !== null && val !== '') || 'Поле обязательно для заполнения',
+            (val) =>
+              (val > 4 && val < 500) || 'Расстояние должно быть от 5 до 500 см',
+          ]"
+        >
+          <template v-slot:before>
+            <q-icon name="square_foot" />
+          </template>
+          <q-tooltip
+            class="bg-grey-8"
+            anchor="top left"
+            self="bottom left"
+            :offset="[0, 8]"
+            >Введите расстояние между рядов в сантимертах
+          </q-tooltip>
+        </q-input>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <q-input
+          outlined
+          v-model="distanceBetweenBushes"
+          type="number"
+          autogrow
+          dense
+          lazy-rules
+          label="Расстояние между кустов, см"
+          suffix="см"
+          placeholder="80"
+          hint="Введите положительное число от 5 до 500"
+          :rules="[
+            (val) =>
+              (val !== null && val !== '') || 'Поле обязательно для заполнения',
+            (val) =>
+              (val > 4 && val < 500) || 'Расстояние должно быть от 5 до 500 см',
+          ]"
+        >
+          <template v-slot:before>
+            <q-icon name="square_foot" />
+          </template>
+          <q-tooltip
+            class="bg-grey-8"
+            anchor="top left"
+            self="bottom left"
+            :offset="[0, 8]"
+            >Введите расстояние между кустов в сантимертах
           </q-tooltip>
         </q-input>
       </div>
@@ -112,6 +184,11 @@ const stringOptions = [
 ]; // Список из сотов определённого овоща
 const currentSort = ref({ id: 0, label: "Без учёта сорта" }); // Выбранный сорт
 const sorts = ref(stringOptions); // Реакстивный список
+const bushes = ref(null); // кусты
+const rows = ref(null); // ряды
+const distanceBetweenRows = ref(null); // расстояние между рядов
+const distanceBetweenBushes = ref(null); // расстояние между кустов
+
 // фильтрация списка
 const filterFn = (val, update) => {
   if (val === "") {
@@ -129,14 +206,9 @@ const filterFn = (val, update) => {
     });
   }
 };
-/**
- * Количество кустов
- */
-const bushes = ref(null);
-/**
- * Количество
- */
-const rows = ref(null);
+const test = () => {
+  console.log("Test Yes");
+};
 </script>
 
 <style lang="scss" scoped></style>
