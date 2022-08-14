@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHr lpR lfr">
+  <q-layout view="lhr lpR lfr">
     <q-ajax-bar
       ref="bar"
       position="top"
