@@ -25,15 +25,62 @@ import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
 const tab = ref("");
+const menuItems = [
+  {
+    id: 1,
+    name: "home",
+    icon: "home",
+    label: null,
+  },
+  {
+    id: 2,
+    name: "news",
+    icon: "newspaper",
+    label: "Новости",
+  },
+  {
+    id: 3,
+    name: "about",
+    icon: "business",
+    label: "О нас",
+  },
+  {
+    id: 4,
+    name: "adb",
+    icon: "real_estate_agent",
+    label: "Объявления",
+  },
+  {
+    id: 5,
+    name: "blogs",
+    icon: "rss_feed",
+    label: "Блоги",
+  },
+  {
+    id: 6,
+    name: "articles",
+    icon: "feed",
+    label: "Статьи",
+  },
+  {
+    id: 7,
+    name: "calculate",
+    icon: "calculate",
+    label: "Расчёты",
+  },
+  {
+    id: 8,
+    name: "calendars",
+    icon: "calendar_month",
+    label: "Календари",
+  },
+];
 
 onMounted(() => {
   tab.value = route.matched[0].name || "home";
 });
 
 const emit = defineEmits(["subMenu"]);
-defineProps({
-  menuItems: Array,
-});
 
 watch(tab, (newValue, oldValue) => {
   emit("subMenu", tab.value);
