@@ -14,7 +14,7 @@
 
 $primary: #194484;
 $secondary: #06b25f;
-$accent: #9c27b0;
+$accent: #e6ff00;
 
 $dark: #1d1d1d;
 $dark-page: #121212;
@@ -26,3 +26,10 @@ $warning: #f2c037;
 
 $color-bg: #f5faff;
 $promo: #17696a;
+
+$h1: (
+  size: 20px,
+  line-height: 0.5rem,
+  letter-spacing: 0,
+  weight: 700,
+) !default;

@@ -16,6 +16,11 @@
       :name="item.name"
       :label="item.label"
       :to="item.name != 'home' ? '/' + tabName + '/' + item.name : '/'"
+      :class="
+        $route.matched[$route.matched.length - 1].name == item.name
+          ? 'q-tab--active'
+          : ''
+      "
       exact
     />
   </q-tabs>
