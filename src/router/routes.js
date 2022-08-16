@@ -19,18 +19,10 @@ const routes = [
     component: () => import("layouts/MainLayout.vue"),
     children: [
       {
-        path: "seeding",
+        path: "seeding/:id?",
         name: "seeding",
         meta: { title: "Расчёты посева" },
         component: () => import("pages/SeedingPage.vue"),
-        children: [
-          {
-            path: "test",
-            name: "seeding-test",
-            meta: { title: "Расчёты посева test" },
-            component: () => import("pages/SeedingPage.vue"),
-          },
-        ],
       },
     ],
   },
@@ -38,6 +30,7 @@ const routes = [
   // Always leave this as last one,
   // but you can also remove it
   {
+    name: "notFound",
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),
   },
