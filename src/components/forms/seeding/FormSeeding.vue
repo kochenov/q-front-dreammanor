@@ -5,6 +5,9 @@
     vertical
     color="primary"
     animated
+    done-color="positive"
+    bordered
+    header-class="text-bold"
   >
     <q-step
       :name="1"
@@ -13,14 +16,14 @@
       icon="settings"
       :done="step > 1"
     >
-      <div class="row q-col-gutter-md flex flex-center q-py-xl">
+      <div class="row q-col-gutter-md q-pt-lg">
         <div class="col-xs-12 col-md-6">
           <q-select
             use-input
             input-debounce="0"
             transition-show="scale"
             transition-hide="scale"
-            label="Выбирете сорт овоща"
+            label="Выбирете овощь для расчёта грядки"
             @filter="filterFnVegetables"
             outlined
             v-model="currentVegetable"
@@ -29,11 +32,6 @@
             options-dense
             clear-icon
             behavior="dialog"
-            :rules="[
-              (val) =>
-                (val !== null && val !== '') ||
-                'Поле обязательно для заполнения',
-            ]"
           >
             <template v-slot:before>
               <q-icon name="category" />
@@ -46,15 +44,6 @@
           </q-select>
         </div>
       </div>
-
-      <q-stepper-navigation>
-        <q-btn
-          type="submit"
-          @click="step = 2"
-          color="primary"
-          label="Продолжить"
-        />
-      </q-stepper-navigation>
     </q-step>
 
     <q-step
@@ -64,8 +53,17 @@
       icon="create_new_folder"
       :done="step > 2"
     >
+      <q-banner inline-actions class="text-white bg-secondary q-mt-md">
+        Выбран для расчёта грядок:
+        <q-badge outline align="middle" color="accent" class="q-ml-sm">
+          {{ currentVegetable.label }}
+        </q-badge>
+        <template v-slot:action>
+          <q-btn flat color="white" @click="step = 1" label="Выбрать другой" />
+        </template>
+      </q-banner>
       <q-form @submit.prevent="calculate(3)">
-        <div class="row q-col-gutter-md q-py-xl">
+        <div class="row q-col-gutter-md q-my-md">
           <div class="col-xs-12 col-md-4">
             <q-select
               use-input
@@ -232,23 +230,51 @@
           </div>
         </div>
 
-        <q-stepper-navigation>
-          <q-btn type="submit" color="primary" label="Сделать расчёт" />
+        <q-stepper-navigation class="q-pl-lg">
+          <q-btn
+            type="submit"
+            size="13px"
+            color="primary"
+            label="Сделать расчёт"
+          />
           <q-btn
             flat
             @click="step = 1"
+            size="13px"
             color="primary"
-            label="Back"
+            label="Назад"
             class="q-ml-sm"
           />
         </q-stepper-navigation>
       </q-form>
     </q-step>
+
+    <q-step :name="3" title="Результат вычислений" icon="assignment">
+      Таблица вычислений
+
+      <q-stepper-navigation>
+        <q-btn color="primary" size="13px" label="Сохранить результат" />
+        <q-btn
+          size="13px"
+          color="secondary"
+          class="q-ml-sm"
+          label="Запланировать посадку"
+        />
+        <q-btn
+          flat
+          size="13px"
+          @click="step = 2"
+          color="primary"
+          label="Назад"
+          class="q-ml-sm"
+        />
+      </q-stepper-navigation>
+    </q-step>
   </q-stepper>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 // TODO Сорт овоща получать данные из базы
 const stringOptionsSort = [
   { id: 0, label: "Без учёта сорта" },
@@ -300,13 +326,12 @@ const filterFn = (val, update) => {
 const filterFnVegetables = (val, update) => {
   if (val === "") {
     update(() => {
-      sorts.value = stringOptionsVegetables;
+      vegetables.value = stringOptionsVegetables;
     });
   } else {
     update(() => {
       const needle = val.toLowerCase();
-      console.log(needle);
-      sorts.value = stringOptionsVegetables.filter(
+      vegetables.value = stringOptionsVegetables.filter(
         (v) => v.label.toLowerCase().indexOf(needle) > -1
       );
     });
@@ -316,6 +341,12 @@ const filterFnVegetables = (val, update) => {
 const calculate = (num) => {
   step.value = num;
 };
+
+watch(currentVegetable, (newValue, oldValue) => {
+  if (vegetables.value.includes(newValue)) {
+    step.value = 2;
+  }
+});
 </script>
 
 <style lang="scss" scoped></style>
