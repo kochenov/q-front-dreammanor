@@ -72,7 +72,7 @@ const funcRouteCurent = () => {
       compTemp = MyPlanSeeding;
       break;
     default:
-      router.push({ name: "notFound" });
+      //router.push({ name: "notFound" });
       break;
   }
 

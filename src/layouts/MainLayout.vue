@@ -40,7 +40,7 @@
 
       <SubMenu :tabName="tab" />
       <HeaderPromo />
-      <BreadcrumbsHeader />
+      <BreadcrumbsHeader v-if="$route.name != 'home'" />
     </q-header>
 
     <q-drawer show-if-above v-model="leftDrawerOpen" side="left">
