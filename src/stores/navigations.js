@@ -17,7 +17,6 @@ export const useNavigationsStore = defineStore("navigations", {
       this.curendDinamicPage = null;
     },
     addRoutes(arr) {
-      console.log(arr);
       this.curendDinamicPage = [{ ...arr }];
     },
   },

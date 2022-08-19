@@ -5,6 +5,7 @@ import {
   createWebHistory,
   createWebHashHistory,
 } from "vue-router";
+import { authenticated } from "@/middleware";
 import routes from "./routes";
 
 /*
@@ -31,14 +32,7 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
-
-  Router.beforeEach((to, from, next) => {
-    //let parent = routes.find((value) => value.name === to.meta.parent);
-    if (typeof to.meta.title !== "undefined") {
-      document.title = `${to.meta.title}`;
-    }
-    next();
-  });
-
+  // use middleware to check auth
+  Router.beforeEach(authenticated);
   return Router;
 });
