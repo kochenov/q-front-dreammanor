@@ -5,7 +5,7 @@ import {
   createWebHistory,
   createWebHashHistory,
 } from "vue-router";
-import { authenticated } from "@/middleware";
+import { authenticated } from "../middleware";
 import routes from "./routes";
 
 /*

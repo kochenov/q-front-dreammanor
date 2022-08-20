@@ -1,6 +1,6 @@
-import { useAuth } from "@/stores/authStore";
-import { useUser } from "@/stores/userStore";
-// Маршруты
+import { useAuth } from "../stores/authStore";
+import { useUser } from "../stores/userStore";
+// Маршруты для гостей
 const guestAuthRoutes = [
   "login",
   "register",
@@ -30,8 +30,9 @@ export const canSeeUsers = async () => {
 };
 
 export const authenticated = async (to) => {
+  // Инициализация стейта отвечающего за аутентификацию
   const authStore = useAuth();
-
+  // Запрос на получение пользователя
   await authStore.getAuthUser();
 
   // instead of having to check every route record with
