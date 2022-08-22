@@ -13,10 +13,11 @@ export const useAuth = defineStore({
   actions: {
     async login(payload) {
       try {
+        this.error = null;
         await AuthService.login(payload);
         await this.getAuthUser();
-
-        if (this.loggedIn) this.router.push({ path: "/dashboard" });
+        // TODO Исправить на /profile
+        if (this.loggedIn) this.router.push({ path: "/profile" });
       } catch (error) {
         this.error = getError(error);
       }
@@ -39,7 +40,7 @@ export const useAuth = defineStore({
         // Делаю запрос на сервер для получения данных пользователя
         const response = await AuthService.getAuthUser();
         // Помещаю данные пользователя полученные с сервера в стейт
-        this.user = response.data.data;
+        this.user = response.data;
         // Устанавливаю флаг загрузки на не активный
         this.loading = false;
         // Возвращаю полученные данные

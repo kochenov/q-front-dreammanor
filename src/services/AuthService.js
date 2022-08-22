@@ -18,7 +18,6 @@ api.interceptors.response.use(
 export default {
   async login(payload) {
     await api.get("/sanctum/csrf-cookie");
-    console.log("Запрос");
     return api.post("/login", payload);
   },
   logout() {

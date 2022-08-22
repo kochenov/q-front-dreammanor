@@ -48,7 +48,7 @@ export const authenticated = async (to) => {
   }
   if (authStore.user && guestAuthRoutes.includes(to.name)) {
     return {
-      path: "/dashboard",
+      path: "/profile",
     };
   }
 };

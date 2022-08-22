@@ -12,6 +12,20 @@ const routes = [
     ],
   },
   {
+    path: "/profile",
+    name: "profile",
+    meta: { title: "Профиль" },
+    component: () => import("layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "myProfile",
+        meta: { title: "Личные данные" },
+        component: () => import("pages/user/ProfilePage.vue"),
+      },
+    ],
+  },
+  {
     path: "/calculate",
     name: "calculate",
     meta: { title: "Расчёты" },
