@@ -60,11 +60,11 @@ const password = ref(null);
 const accept = ref(false);
 const authError = ref();
 
-const emit = defineEmits(["isLogin"]);
+const emit = defineEmits(["closeModal"]);
 
 const loginSubmit = async (payload) => {
   await authStore.login(payload);
-  authStore.error === null ? emit("isLogin") : null;
+  authStore.error === null ? emit("closeModal") : null;
 };
 </script>
 

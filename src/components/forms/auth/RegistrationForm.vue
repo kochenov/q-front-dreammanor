@@ -75,10 +75,11 @@ import FlashMessage from "src/components/helpers/FlashMessage.vue";
 import { ref } from "vue";
 import { getError } from "src/utils/helpers";
 import AuthService from "src/services/AuthService";
+import { useAuth } from "src/stores/authStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
+const authStore = useAuth();
 const name = ref(null);
 const email = ref(null);
 const password = ref(null);
@@ -86,7 +87,7 @@ const passwordConfirm = ref(null);
 
 const authError = ref(null);
 
-const emit = defineEmits(["isRegister"]);
+const emit = defineEmits(["closeModal"]);
 
 const registration = async () => {
   authError.value = null;
@@ -98,8 +99,9 @@ const registration = async () => {
   };
   try {
     await AuthService.registerUser(payload);
-    emit("isRegister");
-    // router.push("/");
+    await authStore.getAuthUser();
+    emit("closeModal");
+    router.push("/profile");
   } catch (error) {
     authError.value = getError(error);
   }

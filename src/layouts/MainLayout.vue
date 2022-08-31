@@ -131,11 +131,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <component
-            @isLogin="authDialog = false"
-            @isRegister="authDialog = false"
-            :is="authFormActive"
-          />
+          <component @closeModal="authDialog = false" :is="authFormActive" />
         </q-card-section>
       </q-card>
     </q-dialog>
