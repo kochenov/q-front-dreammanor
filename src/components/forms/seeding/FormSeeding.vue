@@ -20,6 +20,7 @@
         <div class="col-xs-12 col-md-6">
           <q-select
             use-input
+            :loading="vegetableStore.loading"
             input-debounce="0"
             transition-show="scale"
             transition-hide="scale"
@@ -33,7 +34,7 @@
             clear-icon
             behavior="dialog"
           >
-            <template v-slot:before>
+            <template v-slot:prepend>
               <q-icon name="category" />
             </template>
             <template v-slot:no-option>
@@ -53,7 +54,7 @@
       icon="create_new_folder"
       :done="step > 2"
     >
-      <q-banner inline-actions class="text-white bg-secondary q-mt-md">
+      <q-banner dense inline-actions class="text-white bg-positive q-mt-md">
         Выбран для расчёта грядок:
         <q-badge outline align="middle" color="accent" class="q-ml-sm">
           {{ currentVegetable.label }}
@@ -67,6 +68,7 @@
           <div class="col-xs-12 col-md-4">
             <q-select
               use-input
+              :loading="vegetableStore.loading"
               input-debounce="0"
               transition-show="scale"
               transition-hide="scale"
@@ -80,7 +82,7 @@
               clear-icon
               behavior="dialog"
             >
-              <template v-slot:before>
+              <template v-slot:prepend>
                 <q-icon name="category" />
               </template>
               <template v-slot:no-option>
@@ -109,11 +111,12 @@
                   (val > 0 && val < 100) ||
                   'Количество кустов должно быть от 1 до 100',
                 (val) =>
-                  val >= rows ||
+                  //11 >= 3
+                  Number(val) >= Number(rows) ||
                   'Кустов должно быть больше чем рядов (или равно им)',
               ]"
             >
-              <template v-slot:before>
+              <template v-slot:prepend>
                 <q-icon name="pin" />
               </template>
               <q-tooltip
@@ -144,11 +147,11 @@
                   (val > 0 && val < 100) ||
                   'Количество рядов должно быть от 1 до 100',
                 (val) =>
-                  val <= bushes ||
+                  Number(val) <= Number(bushes) ||
                   'Рядов должно быть меньше чем кустов (или равно им)',
               ]"
             >
-              <template v-slot:before>
+              <template v-slot:prepend>
                 <q-icon name="pin" />
               </template>
               <q-tooltip
@@ -182,7 +185,7 @@
                   'Расстояние должно быть от 5 до 500 см',
               ]"
             >
-              <template v-slot:before>
+              <template v-slot:prepend>
                 <q-icon name="square_foot" />
               </template>
               <q-tooltip
@@ -215,7 +218,7 @@
                   'Расстояние должно быть от 5 до 500 см',
               ]"
             >
-              <template v-slot:before>
+              <template v-slot:prepend>
                 <q-icon name="square_foot" />
               </template>
               <q-tooltip
@@ -249,72 +252,157 @@
     </q-step>
 
     <q-step :name="3" title="Результат вычислений" icon="assignment">
-      Таблица вычислений
+      <q-banner v-if="isFixRows()" class="text-white bg-info q-pa-md q-mx-lg">
+        Указанное количество рядов:
+        <q-chip
+          dense
+          square
+          color="warning"
+          text-color="black"
+          icon="directions"
+          >{{ rows }}</q-chip
+        >, система определила оптимальное количество
+        <q-chip dense square color="red" text-color="black" icon="directions">
+          {{ fixRows }} </q-chip
+        >, исключены пустые посадочные места.
+      </q-banner>
+      <ResultCalculateSeeding
+        :fixRows="Number(fixRows)"
+        :rows="Number(rows)"
+        :bushes="Number(bushes)"
+        :distanceBetweenBushes="Number(distanceBetweenBushes)"
+        :distanceBetweenRows="Number(distanceBetweenRows)"
+      />
 
       <q-stepper-navigation>
-        <q-btn color="primary" size="13px" label="Сохранить результат" />
-        <q-btn
-          size="13px"
-          color="secondary"
-          class="q-ml-sm"
-          label="Запланировать посадку"
-        />
-        <q-btn
-          flat
-          size="13px"
-          @click="step = 2"
-          color="primary"
-          label="Назад"
-          class="q-ml-sm"
-        />
+        <div
+          ref="result"
+          class="q-pa-md row wrap items-start justify-center q-gutter-md"
+        >
+          <q-btn color="primary" @cklick.prevent size="13px">
+            Сохранить результат
+            <q-popup-edit
+              v-model="nameSaveSeeding"
+              :validate="(val) => val != null && val.length > 5"
+              v-slot="scope"
+            >
+              <q-input
+                autofocus
+                dense
+                v-model="scope.value"
+                :model-value="scope.value"
+                hint="Введите название грядки"
+                :rules="[
+                  (val) =>
+                    scope.validate(val) || 'Должно быть больше 5 символов',
+                ]"
+              >
+                <template v-slot:after>
+                  <q-btn
+                    flat
+                    dense
+                    color="negative"
+                    icon="cancel"
+                    @click.stop.prevent="scope.cancel"
+                  />
+
+                  <q-btn
+                    flat
+                    dense
+                    color="positive"
+                    icon="check_circle"
+                    @click.stop.prevent="scope.set"
+                    :disable="
+                      scope.validate(scope.value) === false ||
+                      scope.initialValue === scope.value
+                    "
+                  />
+                </template>
+              </q-input>
+            </q-popup-edit>
+          </q-btn>
+          <q-btn
+            size="13px"
+            color="secondary"
+            class="q-ml-sm"
+            label="Запланировать посадку"
+          />
+          <q-btn
+            flat
+            size="13px"
+            @click="step = 2"
+            color="primary"
+            label="Назад"
+            class="q-ml-sm"
+          />
+        </div>
       </q-stepper-navigation>
     </q-step>
   </q-stepper>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-// TODO Сорт овоща получать данные из базы
-const stringOptionsSort = [
-  { id: 0, label: "Без учёта сорта" },
-  { id: 1, label: "Сорт 1" },
-  { id: 2, label: "Сорт 2" },
-  { id: 3, label: "Сорт 3" },
-  { id: 4, label: "Сорт 4" },
-  { id: 4, label: "Сорт 5" },
-]; // Список из сотов определённого овоща
-const stringOptionsVegetables = [
-  { id: 0, label: "Арбуз" },
-  { id: 1, label: "Баклажаны" },
-  { id: 2, label: "Сельдерей" },
-  { id: 3, label: "Картофель" },
-  { id: 4, label: "Салат" },
-  { id: 4, label: "Огурец" },
-];
-const currentSort = ref({ id: 0, label: "Без учёта сорта" }); // Выбранный сорт
-const sorts = ref(stringOptionsSort); // Реакстивный список
+import { onMounted, ref, watch } from "vue";
+import { useVegetable } from "../../../stores/vegetableStore";
+import ResultCalculateSeeding from "../../parts/page/seeding/ResultCalculateSeeding.vue";
+import { oneRows } from "../../parts/page/seeding/resCalculate";
+import { Notify } from "quasar";
 
+//State инициализация
+const vegetableStore = useVegetable();
+/* Данные поиска из списка Select */
+const stringOptionsVegetables = ref(null); // Список овощей для Select
+const stringOptionsSort = ref(null); // Список сотов определённого овоща
+/* список овощей и их сортов */
+const vegetables = ref(stringOptionsVegetables.value); // Список овощей
+const sorts = ref(stringOptionsSort.value); // Список соров овощей
+/* Текущии данные */
 const currentVegetable = ref(null); // Выбранный veget
-const vegetables = ref(stringOptionsVegetables); // Реакстивный список
-
+const currentSort = ref(null); // Выбранный сорт
+/* Данные формы */
 const bushes = ref(null); // кусты
 const rows = ref(null); // ряды
+const fixRows = ref(null);
 const distanceBetweenRows = ref(null); // расстояние между рядов
 const distanceBetweenBushes = ref(null); // расстояние между кустов
 
+const result = ref(null);
+/* Текуший шаг в расчётах */
 const step = ref(1);
+const nameSaveSeeding = ref(null);
+const saveResultSeeding = () => {
+  Notify.create({
+    type: "positive",
+    message: "Грядка сохранена.",
+  });
+
+  console.log(nameSaveSeeding.value);
+};
+const isFixRows = () => {
+  // Фиксированный
+  fixRows.value = Math.ceil(
+    Number(bushes.value) / Math.ceil(oneRows(bushes.value, rows.value))
+  );
+  return fixRows.value != rows.value;
+};
+/**
+ * При загрузке компонента
+ */
+onMounted(async () => {
+  await vegetableStore.list(); // получаю список овощей
+  stringOptionsVegetables.value = vegetableStore.vegetables; // Копирую данные в список поиска овощей (SELECT)
+});
+
 // фильтрация списка sort
 const filterFn = (val, update) => {
   if (val === "") {
     update(() => {
-      sorts.value = stringOptionsSort;
+      sorts.value = stringOptionsSort.value;
     });
   } else {
     update(() => {
-      console.log(12);
       const needle = val.toLowerCase();
-      console.log(needle);
-      sorts.value = stringOptionsSort.filter(
+      sorts.value = stringOptionsSort.value.filter(
         (v) => v.label.toLowerCase().indexOf(needle) > -1
       );
     });
@@ -325,12 +413,12 @@ const filterFn = (val, update) => {
 const filterFnVegetables = (val, update) => {
   if (val === "") {
     update(() => {
-      vegetables.value = stringOptionsVegetables;
+      vegetables.value = stringOptionsVegetables.value;
     });
   } else {
     update(() => {
       const needle = val.toLowerCase();
-      vegetables.value = stringOptionsVegetables.filter(
+      vegetables.value = stringOptionsVegetables.value.filter(
         (v) => v.label.toLowerCase().indexOf(needle) > -1
       );
     });
@@ -338,14 +426,46 @@ const filterFnVegetables = (val, update) => {
 };
 
 const calculate = (num) => {
+  if (num == 3) {
+    setTimeout(() => {
+      let el = result.value;
+      window.scrollTo(0, el.offsetTop);
+    }, 1);
+  }
   step.value = num;
 };
 
 watch(currentVegetable, (newValue, oldValue) => {
   if (vegetables.value.includes(newValue)) {
+    updateSorts(currentVegetable.value.id);
     step.value = 2;
   }
 });
+
+watch(currentSort, (newValue, oldValue) => {
+  if (currentSort.value.id !== 0 && currentSort.value) {
+    distanceBetweenRows.value = currentSort.value.distanceBetweenRows; // расстояние между рядов
+    distanceBetweenBushes.value = currentSort.value.distanceBetweenBushes;
+    //step.value = 3;
+  }
+});
+
+watch(nameSaveSeeding, (newValue, oldValue) => {
+  if (nameSaveSeeding.value != null) {
+    saveResultSeeding();
+  }
+});
+
+const updateSorts = async (id) => {
+  currentSort.value = { id: 0, label: "Без учёта сорта" };
+  await vegetableStore.one(id);
+  stringOptionsSort.value = [
+    currentSort.value,
+    ...vegetableStore.currentVegetable.sorts,
+  ];
+  distanceBetweenRows.value = null; // расстояние между рядов
+  distanceBetweenBushes.value = null;
+};
 </script>
 
 <style lang="scss" scoped></style>

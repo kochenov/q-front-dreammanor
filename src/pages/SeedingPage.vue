@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
-    <div class="flex items-center">
-      <h1>{{ title }}</h1>
+    <div class="flex items-center tab-top-panel">
+      <h1 class="tab-title">{{ title }}</h1>
       <q-space />
       <div class="q-gutter-sm">
         <q-btn
@@ -82,3 +82,22 @@ useMeta(() => {
   return { title: title.value };
 });
 </script>
+<style lang="scss" scoped>
+@media (max-width: $breakpoint-sm-min) {
+  .tab-title {
+    font-size: 15px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .tab-top-panel {
+    justify-content: center;
+    flex-direction: column;
+  }
+}
+@media (max-width: $breakpoint-md-min) {
+  .tab-title {
+    font-size: 15px;
+  }
+}
+</style>
