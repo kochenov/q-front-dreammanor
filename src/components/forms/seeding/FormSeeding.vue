@@ -20,7 +20,7 @@
         <div class="col-xs-12 col-md-6">
           <q-select
             use-input
-            :loading="vegetableStore.loading"
+            :loading="seedingStore.loading"
             input-debounce="0"
             transition-show="scale"
             transition-hide="scale"
@@ -68,7 +68,7 @@
           <div class="col-xs-12 col-md-4">
             <q-select
               use-input
-              :loading="vegetableStore.loading"
+              :loading="seedingStore.loading"
               input-debounce="0"
               transition-show="scale"
               transition-hide="scale"
@@ -343,13 +343,15 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { useVegetable } from "../../../stores/vegetableStore";
+import { useSeeding } from "../../../stores/seedingStore";
 import ResultCalculateSeeding from "../../parts/page/seeding/ResultCalculateSeeding.vue";
 import { oneRows } from "../../parts/page/seeding/resCalculate";
 import { Notify } from "quasar";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 //State инициализация
-const vegetableStore = useVegetable();
+const seedingStore = useSeeding();
 /* Данные поиска из списка Select */
 const stringOptionsVegetables = ref(null); // Список овощей для Select
 const stringOptionsSort = ref(null); // Список сотов определённого овоща
@@ -370,13 +372,33 @@ const result = ref(null);
 /* Текуший шаг в расчётах */
 const step = ref(1);
 const nameSaveSeeding = ref(null);
-const saveResultSeeding = () => {
+const saveResultSeeding = async () => {
+  let isSort =
+    distanceBetweenRows.value != currentSort.value.distanceBetweenRows ||
+    distanceBetweenBushes.value != currentSort.value.distanceBetweenBushes
+      ? true
+      : false;
+  let data = {
+    name: nameSaveSeeding.value,
+    bushes: bushes.value,
+    rows: rows.value,
+    distanceBetweenBushes: isSort ? distanceBetweenBushes.value : null,
+    distanceBetweenRows: isSort ? distanceBetweenRows.value : null,
+    vegetable_id: currentVegetable.value.id,
+    vegetable_sort_id:
+      distanceBetweenBushes.value == currentSort.value.distanceBetweenBushes &&
+      distanceBetweenRows.value == currentSort.value.distanceBetweenRows
+        ? currentSort.value.id
+        : null,
+  };
+
+  await seedingStore.createSeeding(data);
+
   Notify.create({
     type: "positive",
     message: "Грядка сохранена.",
   });
-
-  console.log(nameSaveSeeding.value);
+  router.push("/calculate/seeding/history");
 };
 const isFixRows = () => {
   // Фиксированный
@@ -389,8 +411,9 @@ const isFixRows = () => {
  * При загрузке компонента
  */
 onMounted(async () => {
-  await vegetableStore.list(); // получаю список овощей
-  stringOptionsVegetables.value = vegetableStore.vegetables; // Копирую данные в список поиска овощей (SELECT)
+  await seedingStore.listVegetable(); // получаю список овощей
+  //await seedingStore.seedingList();
+  stringOptionsVegetables.value = seedingStore.vegetables; // Копирую данные в список поиска овощей (SELECT)
 });
 
 // фильтрация списка sort
@@ -458,10 +481,10 @@ watch(nameSaveSeeding, (newValue, oldValue) => {
 
 const updateSorts = async (id) => {
   currentSort.value = { id: 0, label: "Без учёта сорта" };
-  await vegetableStore.one(id);
+  await seedingStore.oneVegetable(id);
   stringOptionsSort.value = [
     currentSort.value,
-    ...vegetableStore.currentVegetable.sorts,
+    ...seedingStore.currentVegetable.sorts,
   ];
   distanceBetweenRows.value = null; // расстояние между рядов
   distanceBetweenBushes.value = null;
