@@ -381,7 +381,7 @@ const saveResultSeeding = async () => {
   let data = {
     name: nameSaveSeeding.value,
     bushes: bushes.value,
-    rows: rows.value,
+    rows: fixRows.value ? fixRows.value : rows.value,
     distanceBetweenBushes: isSort ? distanceBetweenBushes.value : null,
     distanceBetweenRows: isSort ? distanceBetweenRows.value : null,
     vegetable_id: currentVegetable.value.id,

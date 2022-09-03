@@ -72,21 +72,61 @@
 
         <q-card-section class="col-12 col-md-4 flex flex-center">
           <q-space />
-          <q-btn color="primary" icon="directions" label="Расчёт грядки" />
+          <q-btn
+            color="primary"
+            @click="setOpenResult(item.id)"
+            :icon="
+              currentResultOpen === item.id ? 'arrow_drop_down' : 'arrow_right'
+            "
+          >
+            {{
+              currentResultOpen === item.id ? "Скрыть расчёт" : "Расчёт грядки"
+            }}
+          </q-btn>
         </q-card-section>
       </q-card-section>
+      <q-slide-transition :duration="100">
+        <q-card-section v-if="currentResultOpen === item.id">
+          <q-separator />
+          <ResultCalculateSeeding
+            :fixRows="Number(item.rows)"
+            :rows="Number(item.rows)"
+            :bushes="Number(item.bushes)"
+            :distanceBetweenBushes="
+              Number(
+                item.sort
+                  ? item.sort.distanceBetweenBushes
+                  : item.distanceBetweenBushes
+              )
+            "
+            :distanceBetweenRows="
+              Number(
+                item.sort
+                  ? item.sort.distanceBetweenRows
+                  : item.distanceBetweenRows
+              )
+            "
+          />
+        </q-card-section>
+      </q-slide-transition>
     </q-card>
   </div>
 </template>
 
 <script setup>
 import { useNavigationsStore } from "stores/navigations";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { declOfNum } from "../../../../utils/word";
 import { useSeeding } from "stores/seedingStore";
+import ResultCalculateSeeding from "./ResultCalculateSeeding.vue";
 
 const seedingStore = useSeeding();
 const navigations = useNavigationsStore();
+const currentResultOpen = ref(null);
+
+const setOpenResult = (id) => {
+  currentResultOpen.value = id != currentResultOpen.value ? id : null;
+};
 
 navigations.addRoutes({
   meta: {
