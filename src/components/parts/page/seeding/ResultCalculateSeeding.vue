@@ -138,7 +138,7 @@
     style="height: 100vh"
   >
     <q-card>
-      <q-bar>
+      <q-bar class="bg-primary text-white">
         <q-space />
         <q-btn dense flat icon="close" v-close-popup>
           <q-tooltip class="bg-white text-primary">Закрыть</q-tooltip>

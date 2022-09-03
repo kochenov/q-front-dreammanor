@@ -6,6 +6,7 @@ export const useSeeding = defineStore({
   id: "seedingStore",
   state: () => ({
     vegetables: null,
+    seedings: null,
     currentVegetable: null,
     error: null,
     loading: false,
@@ -41,7 +42,7 @@ export const useSeeding = defineStore({
       try {
         this.error = null;
         const response = await seeding.create(data);
-        this.currentVegetable = response.data.data;
+        //this.currentVegetable = response.data.data;
       } catch (error) {
         this.error = getError(error);
       }
@@ -53,7 +54,7 @@ export const useSeeding = defineStore({
       try {
         this.error = null;
         const response = await seeding.list();
-        this.currentVegetable = response.data.data;
+        this.seedings = response.data.data;
       } catch (error) {
         this.error = getError(error);
       }
